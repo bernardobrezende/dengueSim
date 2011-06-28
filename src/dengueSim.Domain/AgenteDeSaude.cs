@@ -1,36 +1,30 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace dengueSim.Domain
 {
-    public class AgenteDeSaude:Agente
+    public class AgenteDeSaude : Agente
     {
-        
         private Celula alvo;
         private bool indoParaDireita;
         private int ciclosLimpando;
         private int quantidadeDeCiclosNecessarias;
 
-        public bool EstaDetetizando{get; private set;}
+        public bool EstaDetetizando { get; private set; }
         public Celula InicioCobertura { get; private set; }
         public Celula FimCobertura { get; private set; }
 
-        public AgenteDeSaude(Ambiente amb, Celula inicioCobertura,Celula fimCobertura)
-            :base(amb, inicioCobertura)
+        public AgenteDeSaude(Ambiente amb, Celula inicioCobertura, Celula fimCobertura)
+            : base(amb, inicioCobertura)
         {
-            InicioCobertura = inicioCobertura;
-            FimCobertura = fimCobertura;
-            alvo = FimCobertura;
-            indoParaDireita = true;
-            EstaDetetizando = false;
-            ciclosLimpando = 0;
-            quantidadeDeCiclosNecessarias = 0;
+            this.InicioCobertura = inicioCobertura;
+            this.FimCobertura = fimCobertura;
+            this.alvo = FimCobertura;
+            this.indoParaDireita = true;
+            this.EstaDetetizando = false;
+            this.ciclosLimpando = this.quantidadeDeCiclosNecessarias = 0;
         }
 
         private void AnalizarFoco(Foco f)
         {
-            //Quantidade = 1+ para nao sair após limpar
+            // Quantidade = 1+ para nao sair após limpar
             if (f.PossuiOvos)
                 quantidadeDeCiclosNecessarias = 1;
             if (f.PossuiLarvas || f.PossuiPupas)
@@ -39,19 +33,18 @@ namespace dengueSim.Domain
                 quantidadeDeCiclosNecessarias = 3;
         }
 
-   
         public override void Executar()
         {
             if (Posicao is Foco)
             {
                 Foco foco = Posicao as Foco;
-                if (!EstaDetetizando)
+                if (!this.EstaDetetizando)
                 {
                     //Verifica qual a complexidade do foco
                     AnalizarFoco(foco);
-                    EstaDetetizando = true;
+                    this.EstaDetetizando = true;
                 }
-                if(EstaDetetizando)
+                if (this.EstaDetetizando)
                 {
                     //Verifica quantos ciclos ja estou no foco
                     if (ciclosLimpando < quantidadeDeCiclosNecessarias)
@@ -61,20 +54,21 @@ namespace dengueSim.Domain
                     }
                     else
                     {
-                        EstaDetetizando = false;
-                        quantidadeDeCiclosNecessarias = 0;
-                        ciclosLimpando = 0;
+                        this.EstaDetetizando = false;
+                        this.quantidadeDeCiclosNecessarias = ciclosLimpando = 0;
                         foco.Exterminar();
                         Posicao = Ambiente[this.Posicao.Numero];
                     }
                 }
             }
-            if (!EstaDetetizando)
+            if (!this.EstaDetetizando)
             {
-                    //posso me movimentar?
-                    Celula proxCelula = CalcularProximoPasso();
-                    if (proxCelula != null)
-                        Mover(proxCelula);
+                // Posso me movimentar?
+                Celula proxCelula = CalcularProximoPasso();
+                if (proxCelula != null)
+                {
+                    Mover(proxCelula);
+                }
             }
         }
 
@@ -82,7 +76,7 @@ namespace dengueSim.Domain
         {
             Celula proxCelula;
 
-            //Verifica se esta indo do inicio para o fim da area
+            // Verifica se esta indo do inicio para o fim da area
             if (alvo.Equals(FimCobertura))
             {
                 proxCelula = CalculaDirecaoFim();
@@ -91,7 +85,7 @@ namespace dengueSim.Domain
             {
                 proxCelula = CalculaDirecaoInicio();
             }
-            
+
             //TODO verificar se posso ir para a celula
             if (proxCelula.Agentes.Find(ag => ag is Pessoa) != null)
             {
@@ -109,7 +103,7 @@ namespace dengueSim.Domain
                 proxCelula = Ambiente[Posicao.Linha, Posicao.Coluna + 1];
                 indoParaDireita = true;
             }
-            //Se estiver nas bordas da matriz, deverá subir
+            // Se estiver nas bordas da matriz, deverá subir
             else if (Posicao.Coluna == Ambiente.Tamanho - 1 && indoParaDireita)
             {
                 proxCelula = Ambiente[Posicao.Linha - 1, Posicao.Coluna];
@@ -120,7 +114,7 @@ namespace dengueSim.Domain
                 proxCelula = Ambiente[Posicao.Linha - 1, Posicao.Coluna];
                 indoParaDireita = true;
             }
-            // senao continua no movimento que estava fazendo
+            // Senão continua no movimento que estava fazendo
             else
             {
                 if (indoParaDireita)

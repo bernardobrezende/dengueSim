@@ -1,17 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace dengueSim.Domain
 {
+    /// <summary>
+    /// Base class for agents
+    /// </summary>
     public abstract class Agente
     {
         private Ambiente ambiente;
         private Celula posicaoAtual;
+        private Random rd = new Random((int)DateTime.Now.Ticks);
 
         public abstract void Executar();
-        public abstract int TamanhoCampoDeVisao{get;}
-        Random rd = new Random((int)DateTime.Now.Ticks);
+        public abstract int TamanhoCampoDeVisao { get; }
+
         public Celula Posicao
         {
             get { return posicaoAtual; }
@@ -37,70 +40,71 @@ namespace dengueSim.Domain
                 Morreu(this, EventArgs.Empty);
             }
         }
-        public void Mover(Posicoes p)
+
+        public void Mover(Direcoes p)
         {
-            int x =0;
+            int x = 0;
             int y = 0;
             switch (p)
             {
-                case Posicoes.N: x = 0; y = -1;
+                case Direcoes.N: x = 0; y = -1;
                     break;
-                case Posicoes.NE: x = 1; y = -1;
+                case Direcoes.NE: x = 1; y = -1;
                     break;
-                case Posicoes.E: x = 1; y = 0;
+                case Direcoes.E: x = 1; y = 0;
                     break;
-                case Posicoes.SE: x = 1; y = 1;
+                case Direcoes.SE: x = 1; y = 1;
                     break;
-                case Posicoes.S: x = 0; y = 1;
+                case Direcoes.S: x = 0; y = 1;
                     break;
-                case Posicoes.SO: x = -1; y = 1;
+                case Direcoes.SO: x = -1; y = 1;
                     break;
-                case Posicoes.O: x = -1; y = 0;
+                case Direcoes.O: x = -1; y = 0;
                     break;
-                case Posicoes.NO: x = -1; y = -1;
+                case Direcoes.NO: x = -1; y = -1;
                     break;
-            }         
+            }
 
-            int proxX  = Posicao.Coluna + x;
+            int proxX = Posicao.Coluna + x;
             int proxY = Posicao.Linha + y;
 
             Mover(ambiente[proxY, proxX]);
-            
         }
+
         public void Mover(Celula c)
         {
             Posicao.RemoverAgente(this);
             posicaoAtual = c;
             Posicao.AdicionarAgente(this);
         }
+
         public abstract string Draw();
 
-        protected List<Posicoes> MovimentosPossiveis(Celula posicaoAtual)
+        protected List<Direcoes> MovimentosPossiveis(Celula posicaoAtual)
         {
-            List<Posicoes> posicoesPossiveis = new List<Posicoes>() { Posicoes.E, Posicoes.N,
-                                                                        Posicoes.NE, Posicoes.NO,
-                                                                        Posicoes.O, Posicoes.S,
-                                                                        Posicoes.SE, Posicoes.SO };
-            //Verifica limite superior e inferior
+            List<Direcoes> posicoesPossiveis = new List<Direcoes>() { Direcoes.E, Direcoes.N,
+                                                                        Direcoes.NE, Direcoes.NO,
+                                                                        Direcoes.O, Direcoes.S,
+                                                                        Direcoes.SE, Direcoes.SO };
+            // Verifica limite superior e inferior
             if (posicaoAtual.Linha == ambiente.Tamanho - 1)
             {
-                posicoesPossiveis.RemoveAll(p => p == Posicoes.S || p == Posicoes.SO || p == Posicoes.SE);
+                posicoesPossiveis.RemoveAll(p => p == Direcoes.S || p == Direcoes.SO || p == Direcoes.SE);
             }
             else if (posicaoAtual.Linha == 0)
             {
-                posicoesPossiveis.RemoveAll(p => p == Posicoes.N || p == Posicoes.NO || p == Posicoes.NE);
+                posicoesPossiveis.RemoveAll(p => p == Direcoes.N || p == Direcoes.NO || p == Direcoes.NE);
             }
-
-            //verifica limites laterais
+            // Verifica limites laterais
             if (posicaoAtual.Coluna == 0)
             {
-                posicoesPossiveis.RemoveAll(p => p == Posicoes.O || p == Posicoes.SO || p == Posicoes.NO);
+                posicoesPossiveis.RemoveAll(p => p == Direcoes.O || p == Direcoes.SO || p == Direcoes.NO);
             }
-
             else if (posicaoAtual.Coluna == ambiente.Tamanho - 1)
             {
-                posicoesPossiveis.RemoveAll(p => p == Posicoes.E || p == Posicoes.SE || p == Posicoes.NE);
+                posicoesPossiveis.RemoveAll(p => p == Direcoes.E || p == Direcoes.SE || p == Direcoes.NE);
             }
+
             return posicoesPossiveis;
         }
 
@@ -109,8 +113,7 @@ namespace dengueSim.Domain
             int tamCampo = this.TamanhoCampoDeVisao * 2 + 1;
             Celula[,] campo = new Celula[tamCampo, tamCampo];
 
-            int tamanho =this.TamanhoCampoDeVisao;
-
+            int tamanho = this.TamanhoCampoDeVisao;
 
             for (int i = 0; i < tamCampo; i++)
             {
@@ -130,6 +133,5 @@ namespace dengueSim.Domain
             }
             return campo;
         }
-
     }
 }

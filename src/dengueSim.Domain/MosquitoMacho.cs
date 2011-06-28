@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace dengueSim.Domain
 {
@@ -9,8 +8,9 @@ namespace dengueSim.Domain
         private Random rd;
         private bool acasalou;
         private int ciclosEspera;
+
         public MosquitoMacho(Ambiente amb, Celula posInicial)
-            : base(EstagioMosquito.Adulto,posInicial,amb)
+            : base(EstagioMosquito.Adulto, posInicial, amb)
         {
             rd = RandomExtensions.GetInstance();
             ciclosEspera = 0;
@@ -24,8 +24,7 @@ namespace dengueSim.Domain
                 base.Executar();
                 if (Estagio == EstagioMosquito.Adulto)
                 {
-                    //List<Posicoes> posicoesPossiveis = MovimentosPossiveis(this.Posicao);
-                    List<Posicoes> desejos = new List<Posicoes>();
+                    List<Direcoes> desejos = new List<Direcoes>();
 
                     if (acasalou && ciclosEspera < 3)
                     {
@@ -48,13 +47,12 @@ namespace dengueSim.Domain
                             Celula[,] campoVisao = this.GetCampoVisao();
                             desejos = VerificaSeFemeaNoCampoDeVisao(campoVisao);
 
-                            //Se nao tiver nenhuma pessoa perto,
-                            //movimenta aleatoriamente
+                            //Se nao tiver nenhuma pessoa perto, movimenta aleatoriamente
                             if (desejos.Count == 0)
                                 desejos.AddRange(MovimentosPossiveis(this.Posicao));
                         }
                     }
-                    Posicoes posicaoEscolhida = desejos[rd.Next(0, desejos.Count)];
+                    Direcoes posicaoEscolhida = desejos[rd.Next(0, desejos.Count)];
                     Mover(posicaoEscolhida);
                 }
             }
@@ -74,9 +72,9 @@ namespace dengueSim.Domain
             }
         }
 
-        private List<Posicoes> VerificaSeFemeaNoCampoDeVisao(Celula[,] campoVisao)
+        private List<Direcoes> VerificaSeFemeaNoCampoDeVisao(Celula[,] campoVisao)
         {
-            List<Posicoes> desejos = new List<Posicoes>();
+            List<Direcoes> desejos = new List<Direcoes>();
 
             // Noroeste
             // 0,0 0,1 1,0 1,1            
@@ -85,14 +83,14 @@ namespace dengueSim.Domain
                 (campoVisao[1, 0] != null && campoVisao[1, 0].Agentes.Find(p => p is MosquitoFemea && ((MosquitoFemea)p).Estagio == EstagioMosquito.Adulto) != null) ||
                 (campoVisao[1, 1] != null && campoVisao[1, 1].Agentes.Find(p => p is MosquitoFemea && ((MosquitoFemea)p).Estagio == EstagioMosquito.Adulto) != null))
             {
-                desejos.Add(Posicoes.NO);
+                desejos.Add(Direcoes.NO);
             }
 
             // Norte
             if ((campoVisao[0, 2] != null && campoVisao[0, 2].Agentes.Find(p => p is MosquitoFemea && ((MosquitoFemea)p).Estagio == EstagioMosquito.Adulto) != null) ||
                 (campoVisao[1, 2] != null && campoVisao[1, 2].Agentes.Find(p => p is MosquitoFemea && ((MosquitoFemea)p).Estagio == EstagioMosquito.Adulto) != null))
             {
-                desejos.Add(Posicoes.N);
+                desejos.Add(Direcoes.N);
             }
 
             // Nordeste
@@ -102,14 +100,14 @@ namespace dengueSim.Domain
                 (campoVisao[1, 4] != null && campoVisao[1, 4].Agentes.Find(p => p is MosquitoFemea && ((MosquitoFemea)p).Estagio == EstagioMosquito.Adulto) != null) ||
                 (campoVisao[1, 3] != null && campoVisao[1, 3].Agentes.Find(p => p is MosquitoFemea && ((MosquitoFemea)p).Estagio == EstagioMosquito.Adulto) != null))
             {
-                desejos.Add(Posicoes.NE);
+                desejos.Add(Direcoes.NE);
             }
 
             // Leste
             if ((campoVisao[2, 4] != null && campoVisao[2, 4].Agentes.Find(p => p is MosquitoFemea && ((MosquitoFemea)p).Estagio == EstagioMosquito.Adulto) != null) ||
                 (campoVisao[2, 3] != null && campoVisao[2, 3].Agentes.Find(p => p is MosquitoFemea && ((MosquitoFemea)p).Estagio == EstagioMosquito.Adulto) != null))
             {
-                desejos.Add(Posicoes.E);
+                desejos.Add(Direcoes.E);
             }
 
             // Sudeste
@@ -119,14 +117,14 @@ namespace dengueSim.Domain
                 (campoVisao[4, 4] != null && campoVisao[4, 4].Agentes.Find(p => p is MosquitoFemea && ((MosquitoFemea)p).Estagio == EstagioMosquito.Adulto) != null) ||
                 (campoVisao[3, 3] != null && campoVisao[3, 3].Agentes.Find(p => p is MosquitoFemea && ((MosquitoFemea)p).Estagio == EstagioMosquito.Adulto) != null))
             {
-                desejos.Add(Posicoes.SE);
+                desejos.Add(Direcoes.SE);
             }
 
             // Sul
             if ((campoVisao[4, 2] != null && campoVisao[4, 2].Agentes.Find(p => p is MosquitoFemea && ((MosquitoFemea)p).Estagio == EstagioMosquito.Adulto) != null) ||
                 (campoVisao[3, 2] != null && campoVisao[3, 2].Agentes.Find(p => p is MosquitoFemea && ((MosquitoFemea)p).Estagio == EstagioMosquito.Adulto) != null))
             {
-                desejos.Add(Posicoes.S);
+                desejos.Add(Direcoes.S);
             }
 
             // Sudoeste            
@@ -136,14 +134,14 @@ namespace dengueSim.Domain
                 (campoVisao[4, 1] != null && campoVisao[4, 1].Agentes.Find(p => p is MosquitoFemea && ((MosquitoFemea)p).Estagio == EstagioMosquito.Adulto) != null) ||
                 (campoVisao[3, 1] != null && campoVisao[3, 1].Agentes.Find(p => p is MosquitoFemea && ((MosquitoFemea)p).Estagio == EstagioMosquito.Adulto) != null))
             {
-                desejos.Add(Posicoes.SO);
+                desejos.Add(Direcoes.SO);
             }
 
             // Oeste
             if ((campoVisao[2, 0] != null && campoVisao[2, 0].Agentes.Find(p => p is MosquitoFemea && ((MosquitoFemea)p).Estagio == EstagioMosquito.Adulto) != null) ||
                 (campoVisao[2, 1] != null && campoVisao[2, 1].Agentes.Find(p => p is MosquitoFemea && ((MosquitoFemea)p).Estagio == EstagioMosquito.Adulto) != null))
             {
-                desejos.Add(Posicoes.O);
+                desejos.Add(Direcoes.O);
             }
 
             return desejos;
@@ -153,16 +151,16 @@ namespace dengueSim.Domain
         {
             if (Estagio == EstagioMosquito.Ovo)
                 return "0";
-            if (Estagio  == EstagioMosquito.Larva)
+            if (Estagio == EstagioMosquito.Larva)
                 return "L";
             if (Estagio == EstagioMosquito.Pupa)
                 return "P";
-           
+
             if (acasalou)
             {
                 return "MM F";
             }
-            return "MM"; 
-        } 
+            return "MM";
+        }
     }
 }

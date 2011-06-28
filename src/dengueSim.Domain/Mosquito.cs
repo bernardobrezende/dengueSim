@@ -1,26 +1,33 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace dengueSim.Domain
 {
-    public class Mosquito : Agente 
+    public class Mosquito : Agente
     {
         private int ciclosVivo;
 
-        public dengueSim.Domain.TipoDengue? TipoDengue
+        public dengueSim.Domain.TipoDengue? TipoDengue { get; set; }
+        public override int TamanhoCampoDeVisao
+        {
+            get { return 2; }
+        }
+        public EstagioMosquito Estagio
         {
             get;
             set;
         }
 
-        public Mosquito(EstagioMosquito e, Celula posicaoInicial, Ambiente amb) : base(amb,posicaoInicial) 
+        public bool EstaVivo
+        {
+            get;
+            private set;
+        }
+
+        public Mosquito(EstagioMosquito e, Celula posicaoInicial, Ambiente amb)
+            : base(amb, posicaoInicial)
         {
             this.Estagio = e;
-            EstaVivo = true;
+            this.EstaVivo = true;
         }
- 
-        
+
         public override void Executar()
         {
             ciclosVivo++;
@@ -41,24 +48,6 @@ namespace dengueSim.Domain
                 EstaVivo = false;
                 OnMorreu();
             }
-        }
-
-        public override int TamanhoCampoDeVisao
-        {
-            get { return 2; }
-        }
-
-
-        public EstagioMosquito Estagio
-        {
-            get;
-            set;
-        }
-
-        public bool EstaVivo
-        {
-            get;
-            private set;
         }
 
         public override string Draw()

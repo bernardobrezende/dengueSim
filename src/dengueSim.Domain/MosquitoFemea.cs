@@ -9,23 +9,18 @@ namespace dengueSim.Domain
         private Random rd;
         private int qtdAcasalamento;
         private bool depositouOvos;
-        public int numeroFemea{get;set;}
-        public bool Acasalou
-        {
-            get;
-            private set;
-        }
+        private int ciclosEspera;
+        public int numeroFemea { get; set; }
+        public bool Acasalou { get; private set; }
 
         public MosquitoFemea(Ambiente amb, Celula posInicial)
-            : base(EstagioMosquito.Adulto,posInicial,amb)
-        
+            : base(EstagioMosquito.Adulto, posInicial, amb)
         {
             rd = RandomExtensions.GetInstance();
-            qtdAcasalamento = 0;
-            Acasalou = false;
-            depositouOvos = false;
+            this.qtdAcasalamento = this.ciclosEspera = 0;
+            this.Acasalou = this.depositouOvos = false;
         }
-        int ciclosEspera = 0;
+
         public override void Executar()
         {
             if (EstaVivo)
@@ -33,8 +28,7 @@ namespace dengueSim.Domain
                 base.Executar();
                 if (Estagio == EstagioMosquito.Adulto)
                 {
-                    //List<Posicoes> posicoesPossiveis = MovimentosPossiveis(this.Posicao);
-                    List<Posicoes> desejos = new List<Posicoes>();
+                    List<Direcoes> desejos = new List<Direcoes>();
 
                     //int tamanho = TAMANHO_CAMPO_DE_VISAO * 2 + 1;
                     Celula[,] campoVisao = this.GetCampoVisao();
@@ -44,7 +38,6 @@ namespace dengueSim.Domain
                         desejos = VerificaSePessoaNoCampoDeVisao(campoVisao);
                         if (desejos.Count == 0)
                             desejos.AddRange(MovimentosPossiveis(this.Posicao));
-
                     }
                     else if (!Acasalou)
                     {
@@ -60,9 +53,7 @@ namespace dengueSim.Domain
                         desejos = VerificaFocoNoCampoDeVisao(campoVisao);
                         if (desejos.Count == 0)
                             desejos.AddRange(MovimentosPossiveis(this.Posicao));
-
                     }
-
                     else if (Acasalou && (Posicao is Foco) && !depositouOvos)
                     {
                         Mosquito filhote;
@@ -87,12 +78,10 @@ namespace dengueSim.Domain
                         depositouOvos = true;
 
                     }
-
                     else if (depositouOvos && ciclosEspera < 3)
                     {
                         ciclosEspera++;
                         desejos.AddRange(MovimentosPossiveis(this.Posicao));
-
                     }
                     else if (depositouOvos && ciclosEspera >= 3)
                     {
@@ -101,39 +90,35 @@ namespace dengueSim.Domain
                         Acasalou = true;
                         desejos.AddRange(MovimentosPossiveis(this.Posicao));
                     }
-                    //Se nao tiver nenhuma pessoa perto,
-                    //movimenta aleatoriamente
-
-
+                    //Se nao tiver nenhuma pessoa perto, movimenta aleatoriamente
                     if (desejos.Count != 0)
                     {
-                        Posicoes posicaoEscolhida = desejos[rd.Next(0, desejos.Count)];
+                        Direcoes posicaoEscolhida = desejos[rd.Next(0, desejos.Count)];
                         Mover(posicaoEscolhida);
                     }
                 }
             }
         }
 
-
-        private List<Posicoes> VerificaSeMachoNoCampoDeVisao(Celula[,] campoVisao)
+        private List<Direcoes> VerificaSeMachoNoCampoDeVisao(Celula[,] campoVisao)
         {
-            List<Posicoes> desejos = new List<Posicoes>();
+            List<Direcoes> desejos = new List<Direcoes>();
 
             // Noroeste
             // 0,0 0,1 1,0             
-            if ((campoVisao[0, 0] != null && campoVisao[0, 0].Agentes.Find(p => p is MosquitoMacho &&((MosquitoMacho)p).Estagio == EstagioMosquito.Adulto) != null) ||
+            if ((campoVisao[0, 0] != null && campoVisao[0, 0].Agentes.Find(p => p is MosquitoMacho && ((MosquitoMacho)p).Estagio == EstagioMosquito.Adulto) != null) ||
                 (campoVisao[0, 1] != null && campoVisao[0, 1].Agentes.Find(p => p is MosquitoMacho && ((MosquitoMacho)p).Estagio == EstagioMosquito.Adulto) != null) ||
                 (campoVisao[1, 0] != null && campoVisao[1, 0].Agentes.Find(p => p is MosquitoMacho && ((MosquitoMacho)p).Estagio == EstagioMosquito.Adulto) != null) ||
                 (campoVisao[1, 1] != null && campoVisao[1, 1].Agentes.Find(p => p is MosquitoMacho && ((MosquitoMacho)p).Estagio == EstagioMosquito.Adulto) != null))
             {
-                desejos.Add(Posicoes.NO);
+                desejos.Add(Direcoes.NO);
             }
 
             // Norte
             if ((campoVisao[0, 2] != null && campoVisao[0, 2].Agentes.Find(p => p is MosquitoMacho && ((MosquitoMacho)p).Estagio == EstagioMosquito.Adulto) != null) ||
                 (campoVisao[0, 1] != null && campoVisao[0, 1].Agentes.Find(p => p is MosquitoMacho && ((MosquitoMacho)p).Estagio == EstagioMosquito.Adulto) != null))
             {
-                desejos.Add(Posicoes.N);
+                desejos.Add(Direcoes.N);
             }
 
             // Nordeste
@@ -143,14 +128,14 @@ namespace dengueSim.Domain
                 (campoVisao[1, 4] != null && campoVisao[1, 4].Agentes.Find(p => p is MosquitoMacho && ((MosquitoMacho)p).Estagio == EstagioMosquito.Adulto) != null) ||
                 (campoVisao[1, 3] != null && campoVisao[1, 3].Agentes.Find(p => p is MosquitoMacho && ((MosquitoMacho)p).Estagio == EstagioMosquito.Adulto) != null))
             {
-                desejos.Add(Posicoes.NE);
+                desejos.Add(Direcoes.NE);
             }
 
             // Leste
             if ((campoVisao[2, 4] != null && campoVisao[2, 4].Agentes.Find(p => p is MosquitoMacho && ((MosquitoMacho)p).Estagio == EstagioMosquito.Adulto) != null) ||
                 (campoVisao[2, 3] != null && campoVisao[2, 3].Agentes.Find(p => p is MosquitoMacho && ((MosquitoMacho)p).Estagio == EstagioMosquito.Adulto) != null))
             {
-                desejos.Add(Posicoes.E);
+                desejos.Add(Direcoes.E);
             }
 
             // Sudeste
@@ -160,14 +145,14 @@ namespace dengueSim.Domain
                 (campoVisao[4, 4] != null && campoVisao[4, 4].Agentes.Find(p => p is MosquitoMacho && ((MosquitoMacho)p).Estagio == EstagioMosquito.Adulto) != null) ||
                 (campoVisao[3, 3] != null && campoVisao[3, 3].Agentes.Find(p => p is MosquitoMacho && ((MosquitoMacho)p).Estagio == EstagioMosquito.Adulto) != null))
             {
-                desejos.Add(Posicoes.SE);
+                desejos.Add(Direcoes.SE);
             }
 
             // Sul
             if ((campoVisao[4, 2] != null && campoVisao[4, 2].Agentes.Find(p => p is MosquitoMacho && ((MosquitoMacho)p).Estagio == EstagioMosquito.Adulto) != null) ||
                 (campoVisao[3, 2] != null && campoVisao[3, 2].Agentes.Find(p => p is MosquitoMacho && ((MosquitoMacho)p).Estagio == EstagioMosquito.Adulto) != null))
             {
-                desejos.Add(Posicoes.S);
+                desejos.Add(Direcoes.S);
             }
 
             // Sudoeste            
@@ -177,37 +162,36 @@ namespace dengueSim.Domain
                 (campoVisao[4, 1] != null && campoVisao[4, 1].Agentes.Find(p => p is MosquitoMacho && ((MosquitoMacho)p).Estagio == EstagioMosquito.Adulto) != null) ||
                 (campoVisao[3, 1] != null && campoVisao[3, 1].Agentes.Find(p => p is MosquitoMacho && ((MosquitoMacho)p).Estagio == EstagioMosquito.Adulto) != null))
             {
-                desejos.Add(Posicoes.SO);
+                desejos.Add(Direcoes.SO);
             }
 
             // Oeste
             if ((campoVisao[2, 0] != null && campoVisao[2, 0].Agentes.Find(p => p is MosquitoMacho && ((MosquitoMacho)p).Estagio == EstagioMosquito.Adulto) != null) ||
                 (campoVisao[2, 1] != null && campoVisao[2, 1].Agentes.Find(p => p is MosquitoMacho && ((MosquitoMacho)p).Estagio == EstagioMosquito.Adulto) != null))
             {
-                desejos.Add(Posicoes.O);
+                desejos.Add(Direcoes.O);
             }
 
             return desejos;
         }
 
-
-        private List<Posicoes> VerificaSePessoaNoCampoDeVisao(Celula[,] campoVisao)
+        private List<Direcoes> VerificaSePessoaNoCampoDeVisao(Celula[,] campoVisao)
         {
-            List<Posicoes> desejos = new List<Posicoes>();
+            List<Direcoes> desejos = new List<Direcoes>();
 
             // Noroeste
             // 0,0 0,1 1,0             
-            if ((campoVisao[0, 0] != null && campoVisao[0,0].Agentes.Find(p => p is Pessoa) != null) ||
-                 (campoVisao[0, 1] != null && campoVisao[0,1].Agentes.Find(p => p is Pessoa) != null) ||
-                (campoVisao[1,0] != null && campoVisao[1,0].Agentes.Find(p => p is Pessoa) != null))
+            if ((campoVisao[0, 0] != null && campoVisao[0, 0].Agentes.Find(p => p is Pessoa) != null) ||
+                 (campoVisao[0, 1] != null && campoVisao[0, 1].Agentes.Find(p => p is Pessoa) != null) ||
+                (campoVisao[1, 0] != null && campoVisao[1, 0].Agentes.Find(p => p is Pessoa) != null))
             {
-                desejos.Add(Posicoes.NO);
+                desejos.Add(Direcoes.NO);
             }
 
             // Norte
             if (campoVisao[0, 2] != null && campoVisao[0, 2].Agentes.Find(p => p is Pessoa) != null)
             {
-                desejos.Add(Posicoes.N);
+                desejos.Add(Direcoes.N);
             }
 
             // Nordeste
@@ -216,13 +200,13 @@ namespace dengueSim.Domain
                  (campoVisao[0, 4] != null && campoVisao[0, 4].Agentes.Find(p => p is Pessoa) != null) ||
                 (campoVisao[1, 4] != null && campoVisao[1, 4].Agentes.Find(p => p is Pessoa) != null))
             {
-                desejos.Add(Posicoes.NE);
+                desejos.Add(Direcoes.NE);
             }
 
             // Leste
             if (campoVisao[2, 4] != null && campoVisao[2, 4].Agentes.Find(p => p is Pessoa) != null)
             {
-                desejos.Add(Posicoes.E);
+                desejos.Add(Direcoes.E);
             }
 
             // Sudeste
@@ -231,13 +215,13 @@ namespace dengueSim.Domain
                  (campoVisao[4, 3] != null && campoVisao[4, 3].Agentes.Find(p => p is Pessoa) != null) ||
                 (campoVisao[4, 4] != null && campoVisao[4, 4].Agentes.Find(p => p is Pessoa) != null))
             {
-                desejos.Add(Posicoes.SE);
+                desejos.Add(Direcoes.SE);
             }
 
             // Sul
             if (campoVisao[4, 2] != null && campoVisao[4, 2].Agentes.Find(p => p is Pessoa) != null)
             {
-                desejos.Add(Posicoes.S);
+                desejos.Add(Direcoes.S);
             }
 
             // Sudoeste            
@@ -246,21 +230,21 @@ namespace dengueSim.Domain
                  (campoVisao[4, 0] != null && campoVisao[4, 0].Agentes.Find(p => p is Pessoa) != null) ||
                 (campoVisao[4, 1] != null && campoVisao[4, 1].Agentes.Find(p => p is Pessoa) != null))
             {
-                desejos.Add(Posicoes.SO);
+                desejos.Add(Direcoes.SO);
             }
 
             // Oeste
             if (campoVisao[2, 0] != null && campoVisao[2, 0].Agentes.Find(p => p is Pessoa) != null)
             {
-                desejos.Add(Posicoes.O);
+                desejos.Add(Direcoes.O);
             }
 
             return desejos;
         }
 
-        private List<Posicoes> VerificaFocoNoCampoDeVisao(Celula[,] campoVisao)
+        private List<Direcoes> VerificaFocoNoCampoDeVisao(Celula[,] campoVisao)
         {
-            List<Posicoes> desejos = new List<Posicoes>();
+            List<Direcoes> desejos = new List<Direcoes>();
 
             // Noroeste
             // 0,0 0,1 1,0             
@@ -269,14 +253,14 @@ namespace dengueSim.Domain
                 (campoVisao[1, 0] != null && (campoVisao[1, 0] is Foco)) ||
                 (campoVisao[1, 1] != null && (campoVisao[1, 1] is Foco)))
             {
-                desejos.Add(Posicoes.NO);
+                desejos.Add(Direcoes.NO);
             }
 
             // Norte
-            if ((campoVisao[0, 2] != null && (campoVisao[0, 2]  is Foco)) ||
-                (campoVisao[0, 1] != null && (campoVisao[0, 1]  is Foco)))
+            if ((campoVisao[0, 2] != null && (campoVisao[0, 2] is Foco)) ||
+                (campoVisao[0, 1] != null && (campoVisao[0, 1] is Foco)))
             {
-                desejos.Add(Posicoes.N);
+                desejos.Add(Direcoes.N);
             }
 
             // Nordeste
@@ -286,14 +270,14 @@ namespace dengueSim.Domain
                 (campoVisao[1, 4] != null && (campoVisao[1, 4] is Foco)) ||
                 (campoVisao[1, 3] != null && (campoVisao[1, 3] is Foco)))
             {
-                desejos.Add(Posicoes.NE);
+                desejos.Add(Direcoes.NE);
             }
 
             // Leste
-            if ((campoVisao[2, 4] != null && (campoVisao[2, 4]  is Foco)) ||
-                (campoVisao[2, 3] != null && (campoVisao[2, 3]  is Foco)))
+            if ((campoVisao[2, 4] != null && (campoVisao[2, 4] is Foco)) ||
+                (campoVisao[2, 3] != null && (campoVisao[2, 3] is Foco)))
             {
-                desejos.Add(Posicoes.E);
+                desejos.Add(Direcoes.E);
             }
 
             // Sudeste
@@ -303,14 +287,14 @@ namespace dengueSim.Domain
                 (campoVisao[4, 4] != null && (campoVisao[4, 4] is Foco)) ||
                 (campoVisao[3, 3] != null && (campoVisao[3, 3] is Foco)))
             {
-                desejos.Add(Posicoes.SE);
+                desejos.Add(Direcoes.SE);
             }
 
             // Sul
-            if ((campoVisao[4, 2] != null && (campoVisao[4, 2] is Foco))||
+            if ((campoVisao[4, 2] != null && (campoVisao[4, 2] is Foco)) ||
                 (campoVisao[3, 2] != null && (campoVisao[3, 2] is Foco)))
             {
-                desejos.Add(Posicoes.S);
+                desejos.Add(Direcoes.S);
             }
 
             // Sudoeste            
@@ -320,14 +304,14 @@ namespace dengueSim.Domain
                 (campoVisao[4, 1] != null && (campoVisao[4, 1] is Foco)) ||
                 (campoVisao[3, 1] != null && (campoVisao[3, 1] is Foco)))
             {
-                desejos.Add(Posicoes.SO);
+                desejos.Add(Direcoes.SO);
             }
 
             // Oeste
             if ((campoVisao[2, 0] != null && (campoVisao[2, 0] is Foco)) ||
                 (campoVisao[2, 1] != null && (campoVisao[2, 1] is Foco)))
             {
-                desejos.Add(Posicoes.O);
+                desejos.Add(Direcoes.O);
             }
 
             return desejos;
@@ -345,7 +329,7 @@ namespace dengueSim.Domain
             }
 
             //verifica se ha alguem no norte
-            aux = campoVisao[1, 2] != null ? campoVisao[1,2].Agentes.Find(p => p is Pessoa) as Pessoa : null;
+            aux = campoVisao[1, 2] != null ? campoVisao[1, 2].Agentes.Find(p => p is Pessoa) as Pessoa : null;
             if (aux != null)
             {
                 this.Picar(aux);
@@ -353,7 +337,7 @@ namespace dengueSim.Domain
                 //desejos.Add(Posicoes.N);
             }
             //verifca se ha alguem no nordeste
-            aux = campoVisao[1, 3] != null ? campoVisao[1,3].Agentes.Find(p => p is Pessoa) as Pessoa : null;
+            aux = campoVisao[1, 3] != null ? campoVisao[1, 3].Agentes.Find(p => p is Pessoa) as Pessoa : null;
             if (aux != null)
             {
                 this.Picar(aux);
@@ -362,7 +346,7 @@ namespace dengueSim.Domain
             }
 
             // verifica oeste
-            aux = campoVisao[2, 1] != null ? campoVisao[2,1].Agentes.Find(p => p is Pessoa) as Pessoa : null;
+            aux = campoVisao[2, 1] != null ? campoVisao[2, 1].Agentes.Find(p => p is Pessoa) as Pessoa : null;
             if (aux != null)
             {
                 this.Picar(aux);
@@ -371,7 +355,7 @@ namespace dengueSim.Domain
             }
 
             //verifica leste
-            aux = campoVisao[2,3] != null ? campoVisao[2,3].Agentes.Find(p => p is Pessoa) as Pessoa : null;
+            aux = campoVisao[2, 3] != null ? campoVisao[2, 3].Agentes.Find(p => p is Pessoa) as Pessoa : null;
             if (aux != null)
             {
                 this.Picar(aux);
@@ -380,7 +364,7 @@ namespace dengueSim.Domain
             }
 
             //verifica sudoeste
-            aux = campoVisao[3, 1] != null ? campoVisao[3,1].Agentes.Find(p => p is Pessoa) as Pessoa : null;
+            aux = campoVisao[3, 1] != null ? campoVisao[3, 1].Agentes.Find(p => p is Pessoa) as Pessoa : null;
             if (aux != null)
             {
                 this.Picar(aux);
@@ -389,7 +373,7 @@ namespace dengueSim.Domain
             }
 
             //verifica o sul tche
-            aux = campoVisao[3, 2] != null ? campoVisao[3,2].Agentes.Find(p => p is Pessoa) as Pessoa : null;
+            aux = campoVisao[3, 2] != null ? campoVisao[3, 2].Agentes.Find(p => p is Pessoa) as Pessoa : null;
             if (aux != null)
             {
                 this.Picar(aux);
@@ -398,7 +382,7 @@ namespace dengueSim.Domain
             }
 
             //verifica sudeste
-            aux = campoVisao[3, 3] != null ? campoVisao[3,3].Agentes.Find(p => p is Pessoa) as Pessoa : null;
+            aux = campoVisao[3, 3] != null ? campoVisao[3, 3].Agentes.Find(p => p is Pessoa) as Pessoa : null;
             if (aux != null)
             {
                 this.Picar(aux);
@@ -444,7 +428,7 @@ namespace dengueSim.Domain
         {
             if (qtdAcasalamento < 4)
             {
-                if (jaPicou &&!Acasalou)
+                if (jaPicou && !Acasalou)
                 {
                     return true;
                 }
@@ -458,8 +442,7 @@ namespace dengueSim.Domain
 
         internal void AcasalarCom(MosquitoMacho mosquitoMacho)
         {
-           // MessageBox.Show(numeroFemea + " fudeuuu");
-            Acasalou = true;          
+            Acasalou = true;
             qtdAcasalamento++;
         }
     }

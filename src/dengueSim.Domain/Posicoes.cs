@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace dengueSim.Domain
 {
-    public enum Posicoes
+    public enum Direcoes
     {
         N,
         NE,
